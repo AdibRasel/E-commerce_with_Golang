@@ -1,0 +1,14 @@
+http request
+
+
+api request method
+    * Get request
+    *Post request
+    *Put request
+    *Patch request
+    *Delete request
+
+
+
+class link : https://www.youtube.com/watch?v=FDqd2nDc6ik&list=PLpCqPSEm2Xe8sEY2haMDUVgwbkIs5NCJI&index=47
+32:00 mnt 
