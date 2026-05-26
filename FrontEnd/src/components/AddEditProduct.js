@@ -92,7 +92,7 @@ function AddEditProduct({ product, onSave, onCancel }) {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    price: '',
+    price: 0,
     imageUrl: '',
   });
 
@@ -107,13 +107,14 @@ function AddEditProduct({ product, onSave, onCancel }) {
     }
   }, [product]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
+const handleChange = (e) => {
+  const { name, value } = e.target;
+
+  setFormData((prevData) => ({
+    ...prevData,
+    [name]: name === "price" ? Number(value) : value,
+  }));
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -133,6 +134,7 @@ function AddEditProduct({ product, onSave, onCancel }) {
         <label>
           Title:
           <input
+          
             type="text"
             name="title"
             value={formData.title}
@@ -167,7 +169,7 @@ function AddEditProduct({ product, onSave, onCancel }) {
         </label>
         <div className="buttons">
           <button type="submit">{product ? 'Save Changes' : 'Add Product'}</button>
-          <button type="button" onClick={onCancel}>
+          <button type="submit" onClick={onCancel}>
             Cancel
           </button>
         </div>

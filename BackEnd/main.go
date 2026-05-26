@@ -16,7 +16,7 @@ func abountHandler(w http.ResponseWriter, r *http.Request) {
 
 type Product struct {
 	ID          int     `json:"id"`          // struct এর বিতরে প্রোপার্টির প্রথম অক্ষর বড় হাতের দিতে হবে। না হলে এই প্রোপার্টি json এ কনভার্ট হবে না।
-	Title       string  `json:"title`        // struct এর প্রথম অক্ষর ছোট হাতের দিলে সেটি প্রাইভেট হয়ে যায়, এটি শুধু মাত্র মেইন প্যাকেজের মধ্যে ব্যবহার করা যাবে, অন্য প্যাকেজে বাবহার করা যাবে না।
+	Title       string  `json:"title"`       // struct এর প্রথম অক্ষর ছোট হাতের দিলে সেটি প্রাইভেট হয়ে যায়, এটি শুধু মাত্র মেইন প্যাকেজের মধ্যে ব্যবহার করা যাবে, অন্য প্যাকেজে বাবহার করা যাবে না।
 	Description string  `json:"description"` // struct এর প্রোপার্টির নাম json এ কনভার্ট করার সময় description হবে।
 	Price       float64 `json:"price"`
 	// ImgURL      string  `json:"ImgURL_er_poriborthe_ei_nam_dekhabe"` //
@@ -26,6 +26,7 @@ type Product struct {
 
 var productList []Product
 
+// getProduct API
 func getProducts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*") // CORS policy set করা হচ্ছে, যাতে অন্য ডোমেইন থেকে এই API কে access করা যায়।
 	// w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")  এখন শুধু মাত্র ৩০০০ পোর্ট এর ডোমেইন এক্সেস করতে পারবে।
@@ -46,6 +47,52 @@ func getProducts(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// createProduct API
+func createProduct(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")             // CORS policy set করা হচ্ছে, যাতে অন্য ডোমেইন থেকে এই API কে access করা যায়।
+	w.Header().Set("Access-Control-Allow-Methods", "POST")         // এই API তে শুধু মাত্র POST রিকোয়েস্ট আসবে।
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type") // এই API তে শুধু মাত্র Content-Type হেডার আসবে।
+	w.Header().Set("Content-Type", "application/json")             // json format hobe.
+
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(200)
+		return
+	}
+
+	if r.Method != "POST" { //r.method = get, post, put, patch, delete
+		http.Error(
+			w, "Please give me Post Request", // Response body
+			400, // Bad Request status code
+		)
+		return
+	}
+
+	var newProduct Product
+
+	decoder := json.NewDecoder(r.Body)
+
+	err := decoder.Decode(&newProduct)
+
+
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Please give me valid JSON", 400) // w, err.Error(), 400
+		
+		return
+	}
+
+	newProduct.ID = len(productList) + 1 // new product এর id set করা হচ্ছে, যাতে করে প্রতিটি প্রোডাক্ট এর আলাদা আলাদা id থাকে।
+	productList = append(productList, newProduct)
+
+	w.WriteHeader(201)
+
+	encoder := json.NewEncoder(w)
+	encoder.Encode(newProduct) // নতুন প্রোডাক্ট এর ডাটা রেসপন্স হিসেবে পাঠানো হচ্ছে।
+
+
+}
+
+
 func main() {
 	mux := http.NewServeMux() // Router
 
@@ -54,6 +101,8 @@ func main() {
 	mux.HandleFunc("/about", abountHandler) // Route
 
 	mux.HandleFunc("/products", getProducts)
+
+	mux.HandleFunc("/create-products", createProduct)
 
 	fmt.Println("Server is running on http://localhost:8080")
 

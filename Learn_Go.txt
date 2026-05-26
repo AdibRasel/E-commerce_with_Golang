@@ -12,3 +12,6 @@ api request method
 
 class link : https://www.youtube.com/watch?v=FDqd2nDc6ik&list=PLpCqPSEm2Xe8sEY2haMDUVgwbkIs5NCJI&index=47
 32:00 mnt 
+
+class link : https://www.youtube.com/watch?v=01dj29eP1gQ&list=PLpCqPSEm2Xe8sEY2haMDUVgwbkIs5NCJI&index=49
+41:54 mnt
