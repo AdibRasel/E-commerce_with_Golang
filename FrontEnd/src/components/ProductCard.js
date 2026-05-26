@@ -53,6 +53,7 @@ function ProductCard({ product, onEdit, onDelete }) {
     <div className="product-card">
       <div className="product-image">
         <img src={product.imageUrl} alt={product.title} />
+        {console.log(product.imageUrl)} {/* Debugging line to check the image URL */}
       </div>
       <div className="product-details">
         <h3>{product.title}</h3>
