@@ -28,10 +28,8 @@ var productList []Product
 
 // getProduct API
 func getProducts(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*") // CORS policy set করা হচ্ছে, যাতে অন্য ডোমেইন থেকে এই API কে access করা যায়।
-	// w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")  এখন শুধু মাত্র ৩০০০ পোর্ট এর ডোমেইন এক্সেস করতে পারবে।
-
-	w.Header().Set("Content-Type", "application/json") // json format hobe.
+	handleCors(w)         // CORS policy হ্যান্ডেল করা হচ্ছে।
+	handlePreflightRequest(w, r) // Preflight রিকোয়েস্ট হ্যান্ডেল করা হচ্ছে।
 
 	if r.Method != http.MethodGet { //r.method = post, put, patch, delete
 		http.Error(
@@ -41,23 +39,13 @@ func getProducts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	encoder := json.NewEncoder(w) // w = http.ResponseWriter // w মানি হচ্ছে রেসপন্স পাঠানো।
-
-	encoder.Encode(productList) //struct -> ProductList convert json format.
-
+	sendData(w, productList, 200) // নতুন প্রোডাক্ট এর ডাটা রেসপন্স হিসেবে পাঠানো হচ্ছে।
 }
 
 // createProduct API
 func createProduct(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")             // CORS policy set করা হচ্ছে, যাতে অন্য ডোমেইন থেকে এই API কে access করা যায়।
-	w.Header().Set("Access-Control-Allow-Methods", "POST")         // এই API তে শুধু মাত্র POST রিকোয়েস্ট আসবে।
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type") // এই API তে শুধু মাত্র Content-Type হেডার আসবে।
-	w.Header().Set("Content-Type", "application/json")             // json format hobe.
-
-	if r.Method == "OPTIONS" {
-		w.WriteHeader(200)
-		return
-	}
+	handleCors(w)         // CORS policy হ্যান্ডেল করা হচ্ছে।
+	handlePreflightRequest(w, r) // Preflight রিকোয়েস্ট হ্যান্ডেল করা হচ্ছে।
 
 	if r.Method != "POST" { //r.method = get, post, put, patch, delete
 		http.Error(
@@ -68,30 +56,44 @@ func createProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var newProduct Product
-
 	decoder := json.NewDecoder(r.Body)
-
 	err := decoder.Decode(&newProduct)
-
-
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "Please give me valid JSON", 400) // w, err.Error(), 400
-		
+
 		return
 	}
 
 	newProduct.ID = len(productList) + 1 // new product এর id set করা হচ্ছে, যাতে করে প্রতিটি প্রোডাক্ট এর আলাদা আলাদা id থাকে।
 	productList = append(productList, newProduct)
 
-	w.WriteHeader(201)
-
-	encoder := json.NewEncoder(w)
-	encoder.Encode(newProduct) // নতুন প্রোডাক্ট এর ডাটা রেসপন্স হিসেবে পাঠানো হচ্ছে।
-
-
+	sendData(w, newProduct, 201) // নতুন প্রোডাক্ট এর ডাটা রেসপন্স হিসেবে পাঠানো হচ্ছে।
 }
 
+func handleCors(w http.ResponseWriter) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")                         // CORS policy set করা হচ্ছে, যাতে অন্য ডোমেইন থেকে এই API কে access করা যায়।
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE") // এই API তে  GET, POST, PATCH, DELETE রিকোয়েস্ট আসবে।
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")             // এই API তে শুধু মাত্র Content-Type হেডার আসবে।
+	w.Header().Set("Content-Type", "application/json")                         // json format hobe.
+}
+
+func handlePreflightRequest(w http.ResponseWriter, r *http.Request) {
+	// OPTIONS রিকোয়েস্ট হচ্ছে Preflight Request,
+	// Preflight রিকোয়েস্ট হচ্ছে ব্রাউজারের কমপ্লেক্স রিকোয়েস্ট
+	// যদি কমপ্লেক্স রিকোয়েস্ট হয় তাহলে OPTIONS দিয়ে সার্ভারে রিকোস্ট দেয় ব্রাউজার।
+	// তাই কমপ্লেক্স রিকোয়েস্ট হলে OPTIONS দিতে হবে।
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(200)
+		return
+	}
+}
+
+func sendData (w http.ResponseWriter, data interface{}, statusCode int){ 
+	w.WriteHeader(statusCode) // এখানে data interface{} দেয়া হয়েছে, যাতে করে যেকোনো ধরনের ডাটা পাঠানো যায়, যেমন struct, string, int ইত্যাদি।
+	encoder := json.NewEncoder(w)// statusCode int দেয়া হয়েছে, যাতে করে যেকোনো ধরনের স্ট্যাটাস কোড পাঠানো যায়, যেমন 200, 201, 400 ইত্যাদি।
+	encoder.Encode(data)// encoder দ্বারা data কে json format এ convert করা হচ্ছে এবং w এর মাধ্যমে রেসপন্স হিসেবে পাঠানো হচ্ছে।
+}
 
 func main() {
 	mux := http.NewServeMux() // Router
