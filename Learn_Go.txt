@@ -19,3 +19,7 @@ class link : https://www.youtube.com/watch?v=01dj29eP1gQ&list=PLpCqPSEm2Xe8sEY2h
 Complete class no 50, refactor
 
 new class start class no 51, Advanced Routing
+
+
+https://www.youtube.com/watch?v=X82JkozYoQE&list=PLpCqPSEm2Xe8sEY2haMDUVgwbkIs5NCJI&index=53
+class 52, 38:57 mnt
