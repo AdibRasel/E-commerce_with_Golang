@@ -20,9 +20,9 @@ func Serve() {
 
 
 	mux := http.NewServeMux() // Router রান করার জন্য
-	wrappedMux := manager.WrapMux(mux)
-
-
+	wrappedMux := manager.WrapMux(mux) // সকল Middlware Wrap করা হলো
+	
+	
 	initRoutes(mux, manager) // সকল Routes এবং Middlware এখানে যাবে।
 
 	fmt.Println("Server is running on http://localhost:8080")
